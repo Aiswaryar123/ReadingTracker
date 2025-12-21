@@ -10,3 +10,9 @@ type CreateBookRequest struct {
 	TotalPages      int    `json:"total_pages"`
 	
 }
+type UpdateBookRequest struct {
+	ID     uint   `json:"id" binding:"required"`
+	Title  string `json:"title"`
+	Author string `json:"author"`
+	
+}

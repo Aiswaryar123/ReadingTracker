@@ -34,6 +34,14 @@ func (m *MockBookRepository) GetAllBooks() ([]models.Book, error) {
 	}
 	return m.Books, nil
 }
+func (m *MockBookRepository) UpdateBook(book *models.Book) error {
+	if m.Err != nil { return m.Err }
+	return nil // Pretend it worked
+}
+
+
+func (m *MockBookRepository) DeleteBook(id uint) error { return nil }
+
 
 
 // Create Book 
@@ -105,4 +113,31 @@ func TestFetchBooks_Failure(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.Nil(t, books)
+}
+
+
+//update test
+func TestUpdateBook_Success(t *testing.T) {
+	mockRepo := &MockBookRepository{}
+	service := services.NewBookService(mockRepo)
+
+	
+	req := dto.UpdateBookRequest{
+		ID:    1,
+		Title: "Clean Architecture",
+	}
+
+	err := service.UpdateBook(req)
+
+	assert.NoError(t, err)
+}
+//delete test
+func TestDeleteBook_Success(t *testing.T) {
+	mockRepo := &MockBookRepository{}
+	service := services.NewBookService(mockRepo)
+
+	// Try to delete Book #1
+	err := service.DeleteBook(1)
+
+	assert.NoError(t, err)
 }
