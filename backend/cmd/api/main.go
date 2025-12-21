@@ -11,21 +11,19 @@ import (
 )
 
 func main() {
-	
+
 	cfg := configs.LoadConfig()
 	database.ConnectDB(cfg)
-
 
 	bookRepo := repository.NewBookRepository(database.DB)
 	bookService := services.NewBookService(bookRepo)
 	bookHandler := handlers.NewBookHandler(bookService)
 
-
 	r := gin.Default()
 
-
 	r.POST("/books", bookHandler.CreateBook)
-    r.GET("/books", bookHandler.GetBooks)
-
+	r.GET("/books", bookHandler.GetBooks)
+	r.PUT("/books", bookHandler.UpdateBook)
+	r.DELETE("/books/:id", bookHandler.DeleteBook)
 	r.Run(":" + cfg.Port)
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-
 type Config struct {
 	Port       string
 	DBHost     string
@@ -17,9 +16,8 @@ type Config struct {
 	DBPort     string
 }
 
-
 func LoadConfig() *Config {
-	
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("Note: .env file not found. Relying on system environment variables.")
@@ -29,7 +27,7 @@ func LoadConfig() *Config {
 		Port:   getEnv("PORT", "8080"),
 		DBHost: getEnv("DB_HOST", "localhost"),
 		DBUser: getEnv("DB_USER", "postgres"),
-		
+
 		DBPassword: getEnv("DB_PASSWORD", ""),
 		DBName:     getEnv("DB_NAME", "bookshelf_tracker"),
 		DBPort:     getEnv("DB_PORT", "5432"),

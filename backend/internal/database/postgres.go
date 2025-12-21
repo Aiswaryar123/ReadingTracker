@@ -14,13 +14,12 @@ import (
 var DB *gorm.DB
 
 func ConnectDB(cfg *configs.Config) {
-	
+
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort,
 	)
 
-	
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -28,8 +27,8 @@ func ConnectDB(cfg *configs.Config) {
 	}
 
 	err = DB.AutoMigrate(
-		&models.Book{}, 
-		&models.ReadingProgress{}, 
+		&models.Book{},
+		&models.ReadingProgress{},
 		&models.Review{},
 	)
 	if err != nil {

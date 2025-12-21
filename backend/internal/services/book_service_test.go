@@ -11,9 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
 // Mock Repository
-
 
 type MockBookRepository struct {
 	Books []models.Book
@@ -35,17 +33,15 @@ func (m *MockBookRepository) GetAllBooks() ([]models.Book, error) {
 	return m.Books, nil
 }
 func (m *MockBookRepository) UpdateBook(book *models.Book) error {
-	if m.Err != nil { return m.Err }
+	if m.Err != nil {
+		return m.Err
+	}
 	return nil // Pretend it worked
 }
 
-
 func (m *MockBookRepository) DeleteBook(id uint) error { return nil }
 
-
-
-// Create Book 
-
+// Create Book
 
 func TestCreateBook_Success(t *testing.T) {
 	mockRepo := &MockBookRepository{}
@@ -115,13 +111,11 @@ func TestFetchBooks_Failure(t *testing.T) {
 	assert.Nil(t, books)
 }
 
-
-//update test
+// update test
 func TestUpdateBook_Success(t *testing.T) {
 	mockRepo := &MockBookRepository{}
 	service := services.NewBookService(mockRepo)
 
-	
 	req := dto.UpdateBookRequest{
 		ID:    1,
 		Title: "Clean Architecture",
@@ -131,12 +125,12 @@ func TestUpdateBook_Success(t *testing.T) {
 
 	assert.NoError(t, err)
 }
-//delete test
+
+// delete test
 func TestDeleteBook_Success(t *testing.T) {
 	mockRepo := &MockBookRepository{}
 	service := services.NewBookService(mockRepo)
 
-	// Try to delete Book #1
 	err := service.DeleteBook(1)
 
 	assert.NoError(t, err)

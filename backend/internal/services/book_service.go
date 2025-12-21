@@ -6,28 +6,23 @@ import (
 	"readingtracker/internal/repository"
 )
 
-
 type BookService interface {
 	CreateBook(req dto.CreateBookRequest) (*models.Book, error)
 	FetchBooks() ([]models.Book, error)
 	UpdateBook(req dto.UpdateBookRequest) error
-	DeleteBook(id uint) error 
+	DeleteBook(id uint) error
 }
-
 
 type bookService struct {
 	repo repository.BookRepository
 }
 
-
 func NewBookService(repo repository.BookRepository) BookService {
 	return &bookService{repo: repo}
 }
 
-
-
 func (s *bookService) CreateBook(req dto.CreateBookRequest) (*models.Book, error) {
-	
+
 	book := &models.Book{
 		Title:           req.Title,
 		Author:          req.Author,
