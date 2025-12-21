@@ -16,6 +16,7 @@ type Book struct {
 	TotalPages      int    `json:"total_pages"`
 	
 
+
 	
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
