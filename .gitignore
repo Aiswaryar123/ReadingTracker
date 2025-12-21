@@ -1,5 +1,11 @@
-*
-!*.mod 
-!*.go
-!*.md 
-!.gitignore
+
+.env
+
+
+bin/
+*.exe
+
+.vscode/
+
+
+.DS_Store
