@@ -44,7 +44,7 @@ func (h *BookHandler) CreateBook(c *gin.Context) {
 }
 
 func (h *BookHandler) UpdateBook(c *gin.Context) {
-	// 1. Get the ID from the URL (/books/1)
+
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
@@ -53,13 +53,12 @@ func (h *BookHandler) UpdateBook(c *gin.Context) {
 	}
 
 	var req dto.UpdateBookRequest
-	// 2. Bind the JSON (Title and Author)
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// 3. Manually set the ID from the URL into our request object
 	req.ID = uint(id)
 
 	if err := h.service.UpdateBook(req); err != nil {
