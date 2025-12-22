@@ -15,25 +15,28 @@ func main() {
 	cfg := configs.LoadConfig()
 	database.ConnectDB(cfg)
 
-	// 1. Repositories
+	// Repositories
 	bookRepo := repository.NewBookRepository(database.DB)
 	progressRepo := repository.NewProgressRepository(database.DB)
 	reviewRepo := repository.NewReviewRepository(database.DB)
+	goalRepo := repository.NewGoalRepository(database.DB)
 
-	// 2. Services
+	//  Services
 	bookService := services.NewBookService(bookRepo)
-
-	reviewService := services.NewReviewService(reviewRepo, bookRepo)
 	progressService := services.NewProgressService(progressRepo)
+	reviewService := services.NewReviewService(reviewRepo, bookRepo)
+	goalService := services.NewGoalService(goalRepo)
 
-	// 3. Handlers
+	//  Handlers
 	bookHandler := handlers.NewBookHandler(bookService)
 	progressHandler := handlers.NewProgressHandler(progressService)
 	reviewHandler := handlers.NewReviewHandler(reviewService)
+	goalHandler := handlers.NewGoalHandler(goalService)
 
 	r := gin.Default()
 
-	routes.RegisterRoutes(r, bookHandler, progressHandler, reviewHandler)
+	// Register Routes
+	routes.RegisterRoutes(r, bookHandler, progressHandler, reviewHandler, goalHandler)
 
 	r.Run(":" + cfg.Port)
 }

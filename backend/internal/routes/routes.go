@@ -11,6 +11,7 @@ func RegisterRoutes(
 	bookHandler *handlers.BookHandler,
 	progressHandler *handlers.ProgressHandler,
 	reviewHandler *handlers.ReviewHandler,
+	goalHandler *handlers.GoalHandler,
 ) {
 	// Book CRUD
 	r.POST("/books", bookHandler.CreateBook)
@@ -25,4 +26,8 @@ func RegisterRoutes(
 	// Reviews
 	r.POST("/books/:id/reviews", reviewHandler.CreateReview)
 	r.GET("/books/:id/reviews", reviewHandler.GetReviews)
+
+	// Reading Goals
+	r.POST("/goals", goalHandler.SetGoal)
+	r.GET("/goals/:year", goalHandler.GetGoalProgress)
 }
