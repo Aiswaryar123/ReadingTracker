@@ -8,6 +8,7 @@ import (
 
 type ProgressService interface {
 	UpdateProgress(bookID uint, req dto.UpdateProgressRequest) error
+	GetProgress(bookID uint) (*models.ReadingProgress, error)
 }
 
 type progressService struct {
@@ -16,6 +17,10 @@ type progressService struct {
 
 func NewProgressService(repo repository.ProgressRepository) ProgressService {
 	return &progressService{repo: repo}
+}
+
+func (s *progressService) GetProgress(bookID uint) (*models.ReadingProgress, error) {
+	return s.repo.GetByBookID(bookID)
 }
 
 func (s *progressService) UpdateProgress(bookID uint, req dto.UpdateProgressRequest) error {

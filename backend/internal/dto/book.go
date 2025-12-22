@@ -9,7 +9,7 @@ type CreateBookRequest struct {
 	TotalPages      int    `json:"total_pages"`
 }
 type UpdateBookRequest struct {
-	ID     uint   `json:"id" binding:"required"`
+	ID     uint   `json:"-"` // "-" tells Gin: "Don't look for this in the JSON body"
 	Title  string `json:"title"`
 	Author string `json:"author"`
 }

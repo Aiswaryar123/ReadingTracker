@@ -9,7 +9,7 @@ import (
 type BookRepository interface {
 	CreateBook(book *models.Book) error
 	GetAllBooks() ([]models.Book, error)
-
+	GetBookByID(id uint) (*models.Book, error) // Add this line
 	UpdateBook(book *models.Book) error
 	DeleteBook(id uint) error
 }
@@ -38,4 +38,9 @@ func (r *bookRepository) UpdateBook(book *models.Book) error {
 
 func (r *bookRepository) DeleteBook(id uint) error {
 	return r.db.Delete(&models.Book{}, id).Error
+}
+func (r *bookRepository) GetBookByID(id uint) (*models.Book, error) {
+	var book models.Book
+	err := r.db.First(&book, id).Error
+	return &book, err
 }

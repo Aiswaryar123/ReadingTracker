@@ -11,8 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Mock Repository
-
 type MockBookRepository struct {
 	Books []models.Book
 	Err   error
@@ -36,12 +34,16 @@ func (m *MockBookRepository) UpdateBook(book *models.Book) error {
 	if m.Err != nil {
 		return m.Err
 	}
-	return nil // Pretend it worked
+	return nil
 }
 
 func (m *MockBookRepository) DeleteBook(id uint) error { return nil }
+func (m *MockBookRepository) GetBookByID(id uint) (*models.Book, error) {
 
-// Create Book
+	return nil, nil
+}
+
+// Create book
 
 func TestCreateBook_Success(t *testing.T) {
 	mockRepo := &MockBookRepository{}

@@ -10,7 +10,8 @@ type Review struct {
 	Book Book `json:"-" gorm:"foreignKey:BookID;constraint:OnDelete:CASCADE;"`
 
 	// Data
-	Rating  int    `json:"rating"`
+	Rating int `json:"rating"`
+
 	Comment string `json:"comment"`
 
 	CreatedAt time.Time `json:"created_at"`

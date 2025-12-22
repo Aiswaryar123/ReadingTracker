@@ -41,3 +41,15 @@ func (h *ProgressHandler) UpdateProgress(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Reading progress updated"})
 }
+func (h *ProgressHandler) GetProgress(c *gin.Context) {
+	bookIDStr := c.Param("id")
+	bookID, _ := strconv.ParseUint(bookIDStr, 10, 64)
+
+	progress, err := h.service.GetProgress(uint(bookID))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Progress not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, progress)
+}
