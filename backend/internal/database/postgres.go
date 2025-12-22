@@ -30,6 +30,7 @@ func ConnectDB(cfg *configs.Config) {
 		&models.Book{},
 		&models.ReadingProgress{},
 		&models.Review{},
+		&models.ReadingGoal{},
 	)
 	if err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
