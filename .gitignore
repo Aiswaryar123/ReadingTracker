@@ -1,11 +1,2 @@
 
 .env
-
-
-bin/
-*.exe
-
-.vscode/
-
-
-.DS_Store
