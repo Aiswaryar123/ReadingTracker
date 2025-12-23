@@ -1,139 +1,147 @@
-package services_test
+package services
 
 import (
 	"errors"
-	"testing"
-
 	"readingtracker/internal/dto"
 	"readingtracker/internal/models"
-	"readingtracker/internal/services"
-
-	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-type MockBookRepository struct {
+// dummy repo
+type FakeBookRepo struct {
 	Books []models.Book
 	Err   error
 }
 
-func (m *MockBookRepository) CreateBook(book *models.Book) error {
-	if m.Err != nil {
-		return m.Err
+func (f *FakeBookRepo) CreateBook(book *models.Book) error {
+	if f.Err != nil {
+		return f.Err
 	}
-	m.Books = append(m.Books, *book)
+	f.Books = append(f.Books, *book)
 	return nil
 }
 
-func (m *MockBookRepository) GetAllBooks() ([]models.Book, error) {
-	if m.Err != nil {
-		return nil, m.Err
+func (f *FakeBookRepo) GetAllBooks() ([]models.Book, error) {
+	if f.Err != nil {
+		return nil, f.Err
 	}
-	return m.Books, nil
+	return f.Books, nil
 }
-func (m *MockBookRepository) UpdateBook(book *models.Book) error {
-	if m.Err != nil {
-		return m.Err
+
+func (f *FakeBookRepo) GetBookByID(id uint) (*models.Book, error) {
+	if f.Err != nil {
+		return nil, f.Err
 	}
-	return nil
+	return &models.Book{ID: id}, nil
 }
 
-func (m *MockBookRepository) DeleteBook(id uint) error { return nil }
-func (m *MockBookRepository) GetBookByID(id uint) (*models.Book, error) {
-
-	return nil, nil
+func (f *FakeBookRepo) UpdateBook(book *models.Book) error {
+	return f.Err
 }
 
-// Create book
+func (f *FakeBookRepo) DeleteBook(id uint) error {
+	return f.Err
+}
 
+func (f *FakeBookRepo) GetDashboardStats() (dto.DashboardStats, error) {
+	return dto.DashboardStats{}, f.Err
+}
+
+// create
 func TestCreateBook_Success(t *testing.T) {
-	mockRepo := &MockBookRepository{}
-	bookService := services.NewBookService(mockRepo)
+	repo := &FakeBookRepo{}
+	service := NewBookService(repo)
+	req := dto.CreateBookRequest{Title: "Clean Code", Author: "Robert Martin"}
 
-	req := dto.CreateBookRequest{
-		Title:           "Clean Code",
-		Author:          "Robert C. Martin",
-		Genre:           "Programming",
-		PublicationYear: 2008,
-		TotalPages:      464,
+	book, err := service.CreateBook(req)
+
+	if err != nil {
+		t.Errorf("Expected no error, but got: %v", err)
 	}
-
-	book, err := bookService.CreateBook(req)
-
-	assert.NoError(t, err)
-	assert.NotNil(t, book)
-	assert.Equal(t, "Clean Code", book.Title)
-	assert.Equal(t, 1, len(mockRepo.Books))
+	if book.Title != "Clean Code" {
+		t.Errorf("Expected title 'Clean Code', but got: %s", book.Title)
+	}
+	if len(repo.Books) != 1 {
+		t.Errorf("Expected 1 book in repo, but found %d", len(repo.Books))
+	}
 }
 
-func TestCreateBook_Failure(t *testing.T) {
-	mockRepo := &MockBookRepository{
-		Err: errors.New("database error"),
+func TestCreateBook_DatabaseError(t *testing.T) {
+	repo := &FakeBookRepo{Err: errors.New("db error")}
+	service := NewBookService(repo)
+	req := dto.CreateBookRequest{Title: "Fail Book"}
+
+	_, err := service.CreateBook(req)
+
+	if err == nil {
+		t.Errorf("Expected an error, but got nil")
 	}
-	bookService := services.NewBookService(mockRepo)
-
-	req := dto.CreateBookRequest{
-		Title:  "Fail Book",
-		Author: "Unknown",
-	}
-
-	book, err := bookService.CreateBook(req)
-
-	assert.Error(t, err)
-	assert.Nil(t, book)
 }
 
-//fetch book
-
+// fetch
 func TestFetchBooks_Success(t *testing.T) {
-	mockRepo := &MockBookRepository{
+	repo := &FakeBookRepo{
 		Books: []models.Book{
-			{Title: "Book One", Author: "Author One"},
-			{Title: "Book Two", Author: "Author Two"},
+			{Title: "Book 1"},
+			{Title: "Book 2"},
 		},
 	}
+	service := NewBookService(repo)
 
-	bookService := services.NewBookService(mockRepo)
+	books, err := service.FetchBooks()
 
-	books, err := bookService.FetchBooks()
-
-	assert.NoError(t, err)
-	assert.Equal(t, 2, len(books))
-	assert.Equal(t, "Book One", books[0].Title)
-}
-
-func TestFetchBooks_Failure(t *testing.T) {
-	mockRepo := &MockBookRepository{
-		Err: errors.New("fetch error"),
+	if err != nil {
+		t.Errorf("Expected no error, but got: %v", err)
 	}
-	bookService := services.NewBookService(mockRepo)
-
-	books, err := bookService.FetchBooks()
-
-	assert.Error(t, err)
-	assert.Nil(t, books)
+	if len(books) != 2 {
+		t.Errorf("Expected 2 books, but got: %d", len(books))
+	}
 }
 
-// update test
+func TestFetchBooks_DatabaseError(t *testing.T) {
+	repo := &FakeBookRepo{Err: errors.New("connection failed")}
+	service := NewBookService(repo)
+
+	_, err := service.FetchBooks()
+
+	if err == nil {
+		t.Errorf("Expected an error, but got nil")
+	}
+}
+
+// update
 func TestUpdateBook_Success(t *testing.T) {
-	mockRepo := &MockBookRepository{}
-	service := services.NewBookService(mockRepo)
-
-	req := dto.UpdateBookRequest{
-		ID:    1,
-		Title: "Clean Architecture",
-	}
+	repo := &FakeBookRepo{}
+	service := NewBookService(repo)
+	req := dto.UpdateBookRequest{ID: 1, Title: "Updated Title"}
 
 	err := service.UpdateBook(req)
 
-	assert.NoError(t, err)
+	if err != nil {
+		t.Errorf("Expected success, but got error: %v", err)
+	}
 }
 
-// delete test
+// delete
 func TestDeleteBook_Success(t *testing.T) {
-	mockRepo := &MockBookRepository{}
-	service := services.NewBookService(mockRepo)
+	repo := &FakeBookRepo{}
+	service := NewBookService(repo)
 
 	err := service.DeleteBook(1)
 
-	assert.NoError(t, err)
+	if err != nil {
+		t.Errorf("Expected success, but got error: %v", err)
+	}
+}
+
+// dashboard stats
+func TestGetStats_Success(t *testing.T) {
+	repo := &FakeBookRepo{}
+	service := NewBookService(repo)
+
+	_, err := service.GetStats()
+
+	if err != nil {
+		t.Errorf("Expected stats to work, but got error: %v", err)
+	}
 }

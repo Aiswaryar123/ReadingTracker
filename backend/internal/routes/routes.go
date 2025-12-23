@@ -30,4 +30,6 @@ func RegisterRoutes(
 	// Reading Goals
 	r.POST("/goals", goalHandler.SetGoal)
 	r.GET("/goals/:year", goalHandler.GetGoalProgress)
+
+	r.GET("/stats", bookHandler.GetStats)
 }

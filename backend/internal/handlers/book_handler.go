@@ -78,3 +78,11 @@ func (h *BookHandler) DeleteBook(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"message": "Book deleted"})
 }
+func (h *BookHandler) GetStats(c *gin.Context) {
+	stats, err := h.service.GetStats()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to calculate stats"})
+		return
+	}
+	c.JSON(http.StatusOK, stats)
+}

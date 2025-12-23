@@ -1,36 +1,35 @@
-package services_test
+package services
 
 import (
 	"errors"
-	"testing"
-
 	"readingtracker/internal/dto"
 	"readingtracker/internal/models"
-	"readingtracker/internal/services"
-
-	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-type MockProgressRepository struct {
+// fake repo
+type FakeProgressRepo struct {
 	Progress *models.ReadingProgress
 	Err      error
 }
 
-func (m *MockProgressRepository) GetByBookID(bookID uint) (*models.ReadingProgress, error) {
-	if m.Progress == nil {
+func (f *FakeProgressRepo) GetByBookID(bookID uint) (*models.ReadingProgress, error) {
+
+	if f.Progress == nil {
 		return nil, errors.New("record not found")
 	}
-	return m.Progress, nil
+	return f.Progress, nil
 }
 
-func (m *MockProgressRepository) Save(p *models.ReadingProgress) error {
-	m.Progress = p
+func (f *FakeProgressRepo) Save(p *models.ReadingProgress) error {
+	f.Progress = p
 	return nil
 }
 
 func TestUpdateProgress_NewEntry(t *testing.T) {
-	mockRepo := &MockProgressRepository{}
-	service := services.NewProgressService(mockRepo)
+
+	repo := &FakeProgressRepo{Progress: nil}
+	service := NewProgressService(repo)
 
 	req := dto.UpdateProgressRequest{
 		Status:      "Reading",
@@ -39,23 +38,27 @@ func TestUpdateProgress_NewEntry(t *testing.T) {
 
 	err := service.UpdateProgress(1, req)
 
-	assert.NoError(t, err)
-	assert.Equal(t, 50, mockRepo.Progress.CurrentPage)
-	assert.Equal(t, "Reading", mockRepo.Progress.Status)
+	if err != nil {
+		t.Errorf("Expected no error, but got: %v", err)
+	}
+	if repo.Progress.CurrentPage != 50 {
+		t.Errorf("Expected CurrentPage 50, but got %d", repo.Progress.CurrentPage)
+	}
+	if repo.Progress.Status != "Reading" {
+		t.Errorf("Expected Status 'Reading', but got %s", repo.Progress.Status)
+	}
 }
+
 func TestUpdateProgress_ExistingEntry(t *testing.T) {
+
 	existing := &models.ReadingProgress{
 		ID:          1,
 		BookID:      1,
 		Status:      "Reading",
 		CurrentPage: 20,
 	}
-
-	mockRepo := &MockProgressRepository{
-		Progress: existing,
-	}
-
-	service := services.NewProgressService(mockRepo)
+	repo := &FakeProgressRepo{Progress: existing}
+	service := NewProgressService(repo)
 
 	req := dto.UpdateProgressRequest{
 		Status:      "Completed",
@@ -64,7 +67,29 @@ func TestUpdateProgress_ExistingEntry(t *testing.T) {
 
 	err := service.UpdateProgress(1, req)
 
-	assert.NoError(t, err)
-	assert.Equal(t, "Completed", mockRepo.Progress.Status)
-	assert.Equal(t, 200, mockRepo.Progress.CurrentPage)
+	if err != nil {
+		t.Errorf("Expected no error, but got: %v", err)
+	}
+	if repo.Progress.Status != "Completed" {
+		t.Errorf("Expected Status 'Completed', but got %s", repo.Progress.Status)
+	}
+	if repo.Progress.CurrentPage != 200 {
+		t.Errorf("Expected CurrentPage 200, but got %d", repo.Progress.CurrentPage)
+	}
+}
+
+func TestGetProgress_Success(t *testing.T) {
+
+	existing := &models.ReadingProgress{BookID: 1, Status: "Reading"}
+	repo := &FakeProgressRepo{Progress: existing}
+	service := NewProgressService(repo)
+
+	result, err := service.GetProgress(1)
+
+	if err != nil {
+		t.Errorf("Expected no error, but got: %v", err)
+	}
+	if result.Status != "Reading" {
+		t.Errorf("Expected Status 'Reading', but got %s", result.Status)
+	}
 }

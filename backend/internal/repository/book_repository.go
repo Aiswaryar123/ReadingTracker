@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"readingtracker/internal/dto"
 	"readingtracker/internal/models"
 
 	"gorm.io/gorm"
@@ -12,6 +13,7 @@ type BookRepository interface {
 	GetBookByID(id uint) (*models.Book, error)
 	UpdateBook(book *models.Book) error
 	DeleteBook(id uint) error
+	GetDashboardStats() (dto.DashboardStats, error)
 }
 
 type bookRepository struct {
@@ -43,4 +45,14 @@ func (r *bookRepository) GetBookByID(id uint) (*models.Book, error) {
 	var book models.Book
 	err := r.db.First(&book, id).Error
 	return &book, err
+}
+func (r *bookRepository) GetDashboardStats() (dto.DashboardStats, error) {
+	var stats dto.DashboardStats
+
+	r.db.Model(&models.Book{}).Count(&stats.TotalBooks)
+	r.db.Model(&models.ReadingProgress{}).Where("status = ?", "Completed").Count(&stats.BooksFinished)
+	r.db.Model(&models.ReadingProgress{}).Where("status = ?", "Reading").Count(&stats.CurrentlyReading)
+	r.db.Model(&models.Review{}).Select("COALESCE(AVG(rating), 0)").Scan(&stats.AverageRating)
+
+	return stats, nil
 }
